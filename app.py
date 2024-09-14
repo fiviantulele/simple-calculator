@@ -1,45 +1,49 @@
 import streamlit as st
 
-def calculator():
-    """A more advanced calculator function using Streamlit."""
+def main():
+    st.title("Mobile Phone Calculator")
 
-    st.title("Advanced Calculator")
+    # Initialize session state for the current input and result
+    if 'current_input' not in st.session_state:
+        st.session_state.current_input = ""
+    if 'result' not in st.session_state:
+        st.session_state.result = ""
 
-    # Create a session state to store calculation history
-    if 'history' not in st.session_state:
-        st.session_state.history = []
+    # Function to update the current input
+    def update_input(value):
+        st.session_state.current_input += str(value)
 
-    # Create a dropdown for operation selection
-    operation = st.selectbox("Choose an operation:", 
-                              ["Addition", "Subtraction", "Multiplication", "Division"])
+    # Function to evaluate the expression
+    def evaluate():
+        try:
+            st.session_state.result = eval(st.session_state.current_input)
+        except Exception as e:
+            st.session_state.result = "Error"
 
-    num1 = st.number_input("Enter the first number:", value=0.0)
-    num2 = st.number_input("Enter the second number:", value=0.0)
+    # Function to clear the input
+    def clear():
+        st.session_state.current_input = ""
+        st.session_state.result = ""
 
-    if st.button("Calculate"):
-        if operation == "Addition":
-            result = num1 + num2
-        elif operation == "Subtraction":
-            result = num1 - num2
-        elif operation == "Multiplication":
-            result = num1 * num2
-        elif operation == "Division":
-            if num2 == 0:
-                st.error("Cannot divide by zero.")
-                result = None
-            else:
-                result = num1 / num2
+    # Display the current input and result
+    st.write("Current Input: ", st.session_state.current_input)
+    st.write("Result: ", st.session_state.result)
 
-        if result is not None:
-            st.success(f"Result: {result}")
-            # Store the calculation result in history
-            st.session_state.history.append(f"{num1} {operation} {num2} = {result}")
+    # Create a grid layout for buttons
+    cols = st.columns(4)
 
-    # Display calculation history
-    if st.session_state.history:
-        st.subheader("Calculation History")
-        for entry in st.session_state.history:
-            st.write(entry)
+    # Number buttons
+    for i in range(1, 10):
+        cols[(i-1) % 3].button(str(i), on_click=update_input, args=(i,))
+    
+    cols[3].button("0", on_click=update_input, args=(0,))
+    cols[3].button("C", on_click=clear)
+    
+    # Operation buttons
+    for op in ['+', '-', '*', '/']:
+        cols[3].button(op, on_click=update_input, args=(op,))
+    
+    cols[3].button("=", on_click=evaluate)
 
 if __name__ == "__main__":
-    calculator()
+    main()
