@@ -1,49 +1,62 @@
 import streamlit as st
 
-def main():
-    st.title("Mobile Phone Calculator")
+# Memory storage for the calculator
+memory = 0
 
-    # Initialize session state for the current input and result
-    if 'current_input' not in st.session_state:
-        st.session_state.current_input = ""
-    if 'result' not in st.session_state:
-        st.session_state.result = ""
+def add(a, b):
+    return a + b
 
-    # Function to update the current input
-    def update_input(value):
-        st.session_state.current_input += str(value)
+def subtract(a, b):
+    return a - b
 
-    # Function to evaluate the expression
-    def evaluate():
-        try:
-            st.session_state.result = eval(st.session_state.current_input)
-        except Exception as e:
-            st.session_state.result = "Error"
+def multiply(a, b):
+    return a * b
 
-    # Function to clear the input
-    def clear():
-        st.session_state.current_input = ""
-        st.session_state.result = ""
+def divide(a, b):
+    return a / b if b != 0 else "Error"
 
-    # Display the current input and result
-    st.write("Current Input: ", st.session_state.current_input)
-    st.write("Result: ", st.session_state.result)
+def update_memory(value):
+    global memory
+    memory = value
 
-    # Create a grid layout for buttons
-    cols = st.columns(4)
+def recall_memory():
+    return memory
 
-    # Number buttons
-    for i in range(1, 10):
-        cols[(i-1) % 3].button(str(i), on_click=update_input, args=(i,))
-    
-    cols[3].button("0", on_click=update_input, args=(0,))
-    cols[3].button("C", on_click=clear)
-    
-    # Operation buttons
-    for op in ['+', '-', '*', '/']:
-        cols[3].button(op, on_click=update_input, args=(op,))
-    
-    cols[3].button("=", on_click=evaluate)
+# Streamlit UI
+st.title("Streamlit Calculator with Memory Functions")
 
-if __name__ == "__main__":
-    main()
+# Input fields
+num1 = st.number_input("Enter first number", value=0.0)
+num2 = st.number_input("Enter second number", value=0.0)
+
+# Select operation
+operation = st.selectbox("Select Operation", ["Add", "Subtract", "Multiply", "Divide"])
+
+# Perform calculation based on user input
+if operation == "Add":
+    result = add(num1, num2)
+elif operation == "Subtract":
+    result = subtract(num1, num2)
+elif operation == "Multiply":
+    result = multiply(num1, num2)
+elif operation == "Divide":
+    result = divide(num1, num2)
+
+# Display result
+st.write("Result: ", result)
+
+# Memory function buttons
+if st.button("M+"):
+    update_memory(result)
+    st.write("Value stored in memory: ", memory)
+
+if st.button("MR"):
+    st.write("Recalled from memory: ", recall_memory())
+
+if st.button("MC"):
+    update_memory(0)
+    st.write("Memory cleared")
+
+# Option to clear result
+if st.button("Clear"):
+    st.write("Result cleared")
